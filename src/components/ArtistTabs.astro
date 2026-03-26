@@ -1,0 +1,57 @@
+---
+import { artists } from "../data/artists";
+---
+
+<nav class="sticky top-0 z-50 bg-gray-900/95 backdrop-blur border-b border-gray-800">
+  <div class="max-w-7xl mx-auto px-4">
+    <div class="flex items-center h-14 gap-4">
+      <span class="text-lg font-bold tracking-tight shrink-0">🎸 推しポータル</span>
+      <div class="flex gap-1 overflow-x-auto" id="artist-tabs">
+        {artists.map((artist, i) => (
+          <button
+            data-artist-id={artist.id}
+            class:list={[
+              "artist-tab px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors",
+              i === 0
+                ? "bg-white/10 text-white"
+                : "text-gray-400 hover:text-gray-200 hover:bg-white/5",
+            ]}
+          >
+            {artist.name}
+          </button>
+        ))}
+      </div>
+    </div>
+  </div>
+</nav>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const tabs = document.querySelectorAll<HTMLButtonElement>(".artist-tab");
+    const sections =
+      document.querySelectorAll<HTMLElement>("[data-artist-section]");
+
+    tabs.forEach((tab) => {
+      tab.addEventListener("click", () => {
+        const artistId = tab.dataset.artistId;
+
+        // Update tab styles
+        tabs.forEach((t) => {
+          t.classList.remove("bg-white/10", "text-white");
+          t.classList.add("text-gray-400");
+        });
+        tab.classList.add("bg-white/10", "text-white");
+        tab.classList.remove("text-gray-400");
+
+        // Show/hide artist sections
+        sections.forEach((section) => {
+          if (section.dataset.artistSection === artistId) {
+            section.classList.remove("hidden");
+          } else {
+            section.classList.add("hidden");
+          }
+        });
+      });
+    });
+  });
+</script>

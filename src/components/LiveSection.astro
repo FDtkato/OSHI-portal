@@ -1,0 +1,93 @@
+---
+import type { LiveItem } from "../data/artists";
+
+interface Props {
+  items: LiveItem[];
+  liveUrl: string;
+  color: string;
+}
+
+const { items, liveUrl, color } = Astro.props;
+
+const today = new Date().toISOString().slice(0, 10);
+const upcomingItems = items.filter((item) => item.date >= today);
+const pastItems = items.filter((item) => item.date < today);
+---
+
+<section>
+  <div class="flex items-center justify-between mb-4">
+    <h2 class="text-xl font-bold flex items-center gap-2">
+      <span class="text-2xl">🎤</span> ライブ情報
+    </h2>
+    <a
+      href={liveUrl}
+      target="_blank"
+      rel="noopener noreferrer"
+      class="text-sm text-gray-400 hover:text-gray-200 transition-colors"
+    >
+      すべてのライブ →
+    </a>
+  </div>
+
+  {items.length === 0 ? (
+    <p class="text-gray-500 text-sm py-8 text-center">
+      ライブ情報はまだ取得されていません。
+    </p>
+  ) : (
+    <div class="space-y-3">
+      {upcomingItems.map((item) => (
+        <a
+          href={item.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="block p-4 bg-gray-800/50 rounded-xl border border-gray-700/50 hover:border-gray-600 hover:bg-gray-800 transition-all group"
+        >
+          <div class="flex items-start gap-3">
+            <div class="shrink-0 text-center min-w-[3.5rem]">
+              <div
+                class="text-xs font-bold px-2 py-0.5 rounded-t-md text-white"
+                style={`background-color: ${color}`}
+              >
+                {new Date(item.date).toLocaleDateString("ja-JP", { month: "short" })}
+              </div>
+              <div class="text-lg font-bold bg-white/10 rounded-b-md py-0.5">
+                {new Date(item.date).getDate()}
+              </div>
+            </div>
+            <div class="min-w-0 flex-1">
+              <p class="text-sm text-gray-200 group-hover:text-white transition-colors leading-relaxed font-medium">
+                {item.title}
+              </p>
+              {item.venue && (
+                <p class="text-xs text-gray-500 mt-1">📍 {item.venue}</p>
+              )}
+            </div>
+            <span class="text-gray-600 group-hover:text-gray-400 transition-colors shrink-0">
+              ↗
+            </span>
+          </div>
+        </a>
+      ))}
+
+      {pastItems.length > 0 && (
+        <details class="group/past">
+          <summary class="text-xs text-gray-600 cursor-pointer hover:text-gray-400 transition-colors py-2">
+            過去のライブ ({pastItems.length}件)
+          </summary>
+          <div class="space-y-2 mt-2 opacity-50">
+            {pastItems.map((item) => (
+              <a
+                href={item.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="block p-3 bg-gray-800/30 rounded-lg text-sm text-gray-500 hover:text-gray-300 transition-colors"
+              >
+                <span class="tabular-nums">{item.date}</span> — {item.title}
+              </a>
+            ))}
+          </div>
+        </details>
+      )}
+    </div>
+  )}
+</section>

@@ -1,0 +1,37 @@
+---
+interface Props {
+  handle: string;
+}
+
+const { handle } = Astro.props;
+---
+
+<section>
+  <h2 class="text-xl font-bold flex items-center gap-2 mb-4">
+    <span class="text-2xl">𝕏</span> 最新ポスト
+  </h2>
+
+  <div class="bg-gray-800/50 rounded-xl border border-gray-700/50 overflow-hidden">
+    <a
+      class="twitter-timeline"
+      data-theme="dark"
+      data-chrome="noheader nofooter noborders transparent"
+      data-tweet-limit="5"
+      data-height="480"
+      href={`https://twitter.com/${handle}`}
+    >
+      @{handle} のポストを読み込み中...
+    </a>
+  </div>
+</section>
+
+<script is:inline>
+  // X (Twitter) ウィジェットスクリプトを読み込み
+  if (!document.getElementById("twitter-wjs")) {
+    const script = document.createElement("script");
+    script.id = "twitter-wjs";
+    script.src = "https://platform.twitter.com/widgets.js";
+    script.async = true;
+    document.head.appendChild(script);
+  }
+</script>
