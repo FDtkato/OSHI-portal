@@ -5,7 +5,7 @@
 | プロジェクト名 | 推しポータル (oshi-portal) |
 | バージョン | 0.0.1 |
 | 作成日 | 2026-03-25 |
-| 最終更新日 | 2026-03-25 |
+| 最終更新日 | 2026-03-26 |
 
 ---
 
@@ -161,7 +161,7 @@ interface LiveItem {
 
 | ID | 名前 | 公式サイト | テーマカラー | 取得方式 | Xハンドル | Instagramハンドル |
 |----|------|-----------|-------------|---------|----------|------------------|
-| tigerlee | タイガーリー | https://tigerlee.ryzm.jp/ | `#e85d04` | puppeteer | tigerlee__info | tigerlee__official |
+| tigerlee | タイガーリー | https://tigerlee.ryzm.jp/ | `#e85d04` | puppeteer | tigerlee0620 | tgl___official |
 | gagagasp | ガガガSP | https://gagagasp.jp/ | `#d90429` | rss | ga3sp_official | ga3sp_official |
 
 ### 3.3 生成データ（JSONファイル）
@@ -318,20 +318,32 @@ npm run fetch (tsx scripts/fetch-all.ts)
 
 | 項目 | 内容 |
 |------|------|
-| 対象URL | `https://tigerlee.ryzm.jp/` |
+| 対象URL | `https://tigerlee.ryzm.jp/news` |
 | 待機条件 | `networkidle2`（ネットワークリクエストが2件以下になるまで待機） |
 | タイムアウト | 30秒 |
 | 出力ファイル | `src/data/generated/tigerlee-news.json` |
 
+**ryzm.jp ニュースページの DOM 構造:**
+
+```html
+<div class="box">
+  <img src="...">
+  <h4>タイトル</h4>
+  <p>本文抜粋...</p>
+  <p class="date">YYYY/MM/DD (Day)</p>
+  <a href="/news/{UUID}"></a>
+</div>
+```
+
 **処理フロー:**
 
 1. Puppeteer でブラウザを起動
-2. `https://tigerlee.ryzm.jp/` にアクセス（`networkidle2` で待機）
+2. `https://tigerlee.ryzm.jp/news` にアクセス（`networkidle2` で待機）
 3. `page.evaluate()` でブラウザ内DOM操作:
-   - 主要探索: `a[href*="/news"], a[href*="/info"], a[href*="/post"]` セレクタ
-   - フォールバック探索: `article, [class*='news'], [class*='info'], [class*='post']` 内のリンク
-   - 各要素から `title`, `url`, `date` を抽出
-   - 日付は `YYYY.MM.DD`, `YYYY/MM/DD`, `YYYY-MM-DD` パターンに対応
+   - `div.box` セレクタで各ニュースカードを取得
+   - `h4` → タイトル
+   - `p.date` → 日付（`YYYY/MM/DD (Day)` → `YYYY-MM-DD` に変換）
+   - `a[href*="/news/"]` → 詳細URL（相対パスを絶対URLに変換）
 4. `NewsItem[]` として JSON ファイルに書き出し
 5. ブラウザを close（`finally` ブロックで確実に実行）
 
@@ -344,17 +356,35 @@ npm run fetch (tsx scripts/fetch-all.ts)
 | タイムアウト | 30秒 |
 | 出力ファイル | `src/data/generated/tigerlee-live.json` |
 
+**ryzm.jp ライブページの DOM 構造:**
+
+```html
+<ul class="live_list">
+  <li>
+    <a href="/live/{UUID}">
+      <ul class="tableview">
+        <li class="w30 date">YYYY/MM/DD (Day)</li>
+        <li class="w45 live_title"><h4>イベント名</h4></li>
+        <li class="w25 venue"><p>会場名</p></li>
+      </ul>
+    </a>
+  </li>
+</ul>
+```
+
 **処理フロー:**
 
 1. Puppeteer でブラウザを起動
 2. `https://tigerlee.ryzm.jp/live` にアクセス（`networkidle2` で待機）
 3. `page.evaluate()` でブラウザ内DOM操作:
-   - 主要探索: `a[href*="/live"], a[href*="/event"], a[href*="/schedule"]` セレクタ
-   - フォールバック探索: `[class*='live'], [class*='event'], [class*='schedule']` 内のリンク
-   - 各要素のカード/コンテナから `title`, `url`, `date`, `venue` を抽出
-4. URL ベースで重複を除去
-5. `LiveItem[]` として JSON ファイルに書き出し
-6. ブラウザを close
+   - `ul.live_list > li` でライブ情報の各行を取得
+   - カテゴリフィルタリンク（`?category_id=...`）は除外し、`/live/{UUID}` のみ対象
+   - `li.date` → 日付（`YYYY/MM/DD (Day)` → `YYYY-MM-DD` に変換）
+   - `li.live_title h4` → イベントタイトル
+   - `li.venue p` → 会場名
+   - 相対パスを絶対URLに変換
+4. `LiveItem[]` として JSON ファイルに書き出し
+5. ブラウザを close
 
 ### 4.5 出力先ディレクトリ
 
@@ -698,14 +728,24 @@ concurrency:
 | # | ステップ名 | 内容 | エラー時の動作 |
 |---|-----------|------|--------------|
 | 1 | Checkout | `actions/checkout@v4` でソース取得 | 失敗で停止 |
-| 2 | Setup Node.js | `actions/setup-node@v4` (Node 20, npm キャッシュ) | 失敗で停止 |
+| 2 | Setup Node.js | `actions/setup-node@v4` (Node 22, npm キャッシュ) | 失敗で停止 |
 | 3 | Install dependencies | `npm ci` | 失敗で停止 |
 | 4 | Fetch artist data | `npx tsx scripts/fetch-all.ts` | **続行** (`continue-on-error: true`) |
 | 5 | Build Astro site | `npm run build` | 失敗で停止 |
 | 6 | Upload Pages artifact | `actions/upload-pages-artifact@v3` (dist/) | 失敗で停止 |
-| 7 | Deploy to GitHub Pages | `actions/deploy-pages@v4` | 失敗で停止 |
+| 7 | Deploy to GitHub Pages | `actions/deploy-pages@v4` (id: deploy) | 失敗で停止 |
+
+**environment 設定:**
+
+```yaml
+environment:
+  name: github-pages
+  url: ${{ steps.deploy.outputs.page_url }}
+```
 
 > **設計判断:** データ取得ステップ（#4）は `continue-on-error: true` としている。これにより、外部サイトの一時的な障害時でも既存のJSONデータを使ってビルド・デプロイが継続される。
+
+> **Node.js バージョン:** Astro v6 は `>=22.12.0` を要求するため、Node.js 22 を使用する。
 
 ---
 
@@ -715,7 +755,8 @@ concurrency:
 
 | 項目 | 値 | 説明 |
 |------|---|------|
-| site | `https://example.github.io` | デプロイ先サイトURL |
+| site | `https://FDtkato.github.io` | デプロイ先サイトURL |
+| base | `/OSHI-portal` | GitHub Pages サブパス |
 | output | static (デフォルト) | 静的サイト生成 |
 | Viteプラグイン | `@tailwindcss/vite` | Tailwind CSS v4 統合 |
 
@@ -781,6 +822,6 @@ concurrency:
 |------|------|------|
 | Instagram | API 未使用、プロフィールリンクのみ | 投稿の埋め込み表示不可 |
 | X (Twitter) | 公式埋め込みウィジェット依存 | ウィジェット仕様変更時に影響を受ける |
-| タイガーリー | ryzm.jp の DOM 構造に依存 | サイトリニューアル時にスクレイピング修正が必要 |
+| タイガーリー | ryzm.jp の DOM 構造に依存（`div.box`, `ul.live_list` 等） | サイトリニューアル時にスクレイピング修正が必要 |
 | ガガガSP | トップページの HTML 構造に依存 | イベントページ (`/event`) は 429 エラーのため使用不可 |
 | ビルド時データ | SSG のため最大6時間のデータ遅延 | リアルタイム性は限定的 |
