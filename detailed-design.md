@@ -161,7 +161,7 @@ interface LiveItem {
 
 | ID | 名前 | 公式サイト | テーマカラー | 取得方式 | Xハンドル | Instagramハンドル |
 |----|------|-----------|-------------|---------|----------|------------------|
-| tigerlee | タイガーリー | https://tigerlee.ryzm.jp/ | `#e85d04` | puppeteer | tigerlee0620 | tgl___official |
+| tigerlee | タイガーリー | https://tigerlee.ryzm.jp/ | `#e85d04` | puppeteer | tigerlee__info | tigerlee__official |
 | gagagasp | ガガガSP | https://gagagasp.jp/ | `#d90429` | rss | ga3sp_official | ga3sp_official |
 
 ### 3.3 生成データ（JSONファイル）
