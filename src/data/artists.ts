@@ -17,7 +17,7 @@ export const artists: Artist[] = [
     officialUrl: "https://tigerlee.ryzm.jp/",
     liveUrl: "https://tigerlee.ryzm.jp/live",
     xHandle: "tigerlee0620",
-    instagramHandle: "tgl___official",
+    instagramHandle: "tigerlee__official",
     color: "#e85d04",
     fetchType: "puppeteer",
   },
