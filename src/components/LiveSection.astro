@@ -34,7 +34,7 @@ const pastItems = items.filter((item) => item.date < today);
       ライブ情報はまだ取得されていません。
     </p>
   ) : (
-    <div class="space-y-3">
+    <div class="space-y-3 max-h-[20rem] overflow-y-auto pr-1">
       {upcomingItems.map((item) => (
         <a
           href={item.url}

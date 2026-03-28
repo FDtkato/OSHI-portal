@@ -70,16 +70,16 @@ const lastUpdated = new Date().toLocaleString("ja-JP", {
 
         {/* ダッシュボードグリッド */}
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* 左カラム: お知らせ + ライブ情報 */}
+          {/* 左カラム: ライブ情報 + お知らせ */}
           <div class="space-y-6">
-            <NewsSection
-              items={artistData[artist.id].news}
-              officialUrl={artist.officialUrl}
-              color={artist.color}
-            />
             <LiveSection
               items={artistData[artist.id].live}
               liveUrl={artist.liveUrl}
+              color={artist.color}
+            />
+            <NewsSection
+              items={artistData[artist.id].news}
+              officialUrl={artist.officialUrl}
               color={artist.color}
             />
           </div>
