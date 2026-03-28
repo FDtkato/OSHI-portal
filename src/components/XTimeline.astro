@@ -68,7 +68,7 @@ const { handle, posts } = Astro.props;
                       <img
                         src={m.type === "video" ? m.thumbnail : m.url}
                         alt=""
-                        class="w-full h-24 object-cover rounded"
+                        class="w-full rounded object-contain bg-black/30"
                         loading="lazy"
                       />
                       {m.type === "video" && (
