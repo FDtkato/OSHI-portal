@@ -1,37 +1,76 @@
 ---
+import type { XPost } from "../data/artists";
+
 interface Props {
   handle: string;
+  posts: XPost[];
 }
 
-const { handle } = Astro.props;
+const { handle, posts } = Astro.props;
 ---
 
 <section>
-  <h2 class="text-xl font-bold flex items-center gap-2 mb-4">
-    <span class="text-2xl">𝕏</span> 最新ポスト
-  </h2>
-
-  <div class="bg-gray-800/50 rounded-xl border border-gray-700/50 overflow-hidden">
+  <div class="flex items-center justify-between mb-4">
+    <h2 class="text-xl font-bold flex items-center gap-2">
+      <span class="text-2xl">𝕏</span> 最新ポスト
+    </h2>
     <a
-      class="twitter-timeline"
-      data-theme="dark"
-      data-chrome="noheader nofooter noborders transparent"
-      data-tweet-limit="5"
-      data-height="480"
-      href={`https://twitter.com/${handle}`}
+      href={`https://x.com/${handle}`}
+      target="_blank"
+      rel="noopener noreferrer"
+      class="text-sm text-gray-400 hover:text-gray-200 transition-colors"
     >
-      @{handle} のポストを読み込み中...
+      @{handle} →
     </a>
   </div>
-</section>
 
-<script is:inline>
-  // X (Twitter) ウィジェットスクリプトを読み込み
-  if (!document.getElementById("twitter-wjs")) {
-    const script = document.createElement("script");
-    script.id = "twitter-wjs";
-    script.src = "https://platform.twitter.com/widgets.js";
-    script.async = true;
-    document.head.appendChild(script);
-  }
-</script>
+  {posts.length === 0 ? (
+    <div class="bg-gray-800/50 rounded-xl border border-gray-700/50 overflow-hidden">
+      <a
+        class="twitter-timeline"
+        data-theme="dark"
+        data-chrome="noheader nofooter noborders transparent"
+        data-tweet-limit="3"
+        data-height="400"
+        href={`https://twitter.com/${handle}`}
+      >
+        @{handle} のポストを読み込み中...
+      </a>
+      <script is:inline>
+        if (!document.getElementById("twitter-wjs")) {
+          const s = document.createElement("script");
+          s.id = "twitter-wjs";
+          s.src = "https://platform.twitter.com/widgets.js";
+          s.async = true;
+          document.head.appendChild(s);
+        }
+      </script>
+    </div>
+  ) : (
+    <div class="space-y-3 max-h-[24rem] overflow-y-auto pr-1">
+      {posts.slice(0, 5).map((post) => (
+        <a
+          href={post.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="block p-4 bg-gray-800/50 rounded-xl border border-gray-700/50 hover:border-gray-600 hover:bg-gray-800 transition-all group"
+        >
+          <div class="flex items-start gap-3">
+            <span class="text-xl shrink-0 mt-0.5">𝕏</span>
+            <div class="min-w-0 flex-1">
+              <p class="text-sm text-gray-200 group-hover:text-white transition-colors leading-relaxed whitespace-pre-line">
+                {post.text}
+              </p>
+              {post.date && (
+                <time class="text-xs text-gray-500 mt-2 block">{post.date}</time>
+              )}
+            </div>
+            <span class="text-gray-600 group-hover:text-gray-400 transition-colors shrink-0">
+              ↗
+            </span>
+          </div>
+        </a>
+      ))}
+    </div>
+  )}
+</section>

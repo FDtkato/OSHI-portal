@@ -47,3 +47,9 @@ export interface LiveItem {
   date: string;
   venue?: string;
 }
+
+export interface XPost {
+  text: string;
+  url: string;
+  date: string;
+}

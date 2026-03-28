@@ -1,5 +1,6 @@
 import fetchGagagasp from "./fetch-gagagasp";
 import fetchTigerlee from "./fetch-tigerlee";
+import fetchAllXPosts from "./fetch-x-posts";
 
 async function main() {
   console.log("=== 推しポータル データ取得 ===\n");
@@ -24,6 +25,15 @@ async function main() {
   } catch (err) {
     console.error("[タイガーリー] エラー:", err);
     results.push({ name: "タイガーリー", success: false });
+  }
+
+  // Xポスト
+  try {
+    await fetchAllXPosts();
+    results.push({ name: "Xポスト", success: true });
+  } catch (err) {
+    console.error("[Xポスト] エラー:", err);
+    results.push({ name: "Xポスト", success: false });
   }
 
   console.log("\n=== 結果サマリー ===");

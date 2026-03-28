@@ -6,22 +6,26 @@ import LiveSection from "../components/LiveSection.astro";
 import XTimeline from "../components/XTimeline.astro";
 import InstagramFeed from "../components/InstagramFeed.astro";
 import { artists } from "../data/artists";
-import type { NewsItem, LiveItem } from "../data/artists";
+import type { NewsItem, LiveItem, XPost } from "../data/artists";
 
 // 各アーティストのデータを直接インポート
 import tigerleeNewsData from "../data/generated/tigerlee-news.json";
 import tigerleeLiveData from "../data/generated/tigerlee-live.json";
 import gagagaspNewsData from "../data/generated/gagagasp-news.json";
 import gagagaspLiveData from "../data/generated/gagagasp-live.json";
+import tigerleeXPostsData from "../data/generated/tigerlee-x-posts.json";
+import gagagaspXPostsData from "../data/generated/gagagasp-x-posts.json";
 
-const artistData: Record<string, { news: NewsItem[]; live: LiveItem[] }> = {
+const artistData: Record<string, { news: NewsItem[]; live: LiveItem[]; xPosts: XPost[] }> = {
   tigerlee: {
     news: tigerleeNewsData as NewsItem[],
     live: tigerleeLiveData as LiveItem[],
+    xPosts: tigerleeXPostsData as XPost[],
   },
   gagagasp: {
     news: gagagaspNewsData as NewsItem[],
     live: gagagaspLiveData as LiveItem[],
+    xPosts: gagagaspXPostsData as XPost[],
   },
 };
 
@@ -86,7 +90,7 @@ const lastUpdated = new Date().toLocaleString("ja-JP", {
 
           {/* 右カラム: SNS */}
           <div class="space-y-6">
-            <XTimeline handle={artist.xHandle} />
+            <XTimeline handle={artist.xHandle} posts={artistData[artist.id].xPosts} />
             <InstagramFeed handle={artist.instagramHandle} />
           </div>
         </div>
