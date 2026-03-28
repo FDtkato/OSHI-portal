@@ -61,6 +61,25 @@ const { handle, posts } = Astro.props;
               <p class="text-sm text-gray-200 group-hover:text-white transition-colors leading-relaxed whitespace-pre-line">
                 {post.text}
               </p>
+              {post.media && post.media.length > 0 && (
+                <div class="mt-2 flex gap-1 overflow-hidden rounded-lg">
+                  {post.media.slice(0, 4).map((m) => (
+                    <div class="relative flex-1 min-w-0">
+                      <img
+                        src={m.type === "video" ? m.thumbnail : m.url}
+                        alt=""
+                        class="w-full h-24 object-cover rounded"
+                        loading="lazy"
+                      />
+                      {m.type === "video" && (
+                        <div class="absolute inset-0 flex items-center justify-center">
+                          <span class="bg-black/60 rounded-full w-8 h-8 flex items-center justify-center text-white text-sm">▶</span>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
               {post.date && (
                 <time class="text-xs text-gray-500 mt-2 block">{post.date}</time>
               )}

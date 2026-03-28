@@ -57,10 +57,27 @@ async function fetchXPosts(handle: string): Promise<XPost[]> {
     const screenName = tw.user?.screen_name || handle;
     const tweetId = tw.conversation_id_str || entry.entry_id?.replace("tweet-", "");
 
+    // メディア情報
+    const rawMedia = tw.entities?.media || [];
+    const media = rawMedia.map((m: any) => {
+      if (m.type === "video" || m.type === "animated_gif") {
+        return {
+          type: "video" as const,
+          url: m.expanded_url || "",
+          thumbnail: m.media_url_https ? m.media_url_https + "?format=jpg&name=small" : "",
+        };
+      }
+      return {
+        type: "photo" as const,
+        url: m.media_url_https ? m.media_url_https + "?format=jpg&name=small" : "",
+      };
+    });
+
     posts.push({
       text: cleanText,
       url: `https://x.com/${screenName}/status/${tweetId}`,
       date,
+      media: media.length > 0 ? media : undefined,
     });
   }
 

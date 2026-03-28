@@ -52,4 +52,9 @@ export interface XPost {
   text: string;
   url: string;
   date: string;
+  media?: {
+    type: "photo" | "video";
+    url: string;
+    thumbnail?: string;
+  }[];
 }
